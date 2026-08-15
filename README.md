@@ -4,10 +4,6 @@
 
 Live: **https://landing-page-tzahi.vercel.app** — source is private; this is the public write-up.
 
-<p align="center">
-  <img src="assets/preview.webp" alt="LANDING-PAGE-TZAHI-INFO — the live site" width="100%">
-</p>
-
 ## Signing the lead pipeline from browser to inbox
 
 A submit runs `browser → POST /api/lead` (Vercel, Node 20) `→ Cloudflare Worker → D1 → Resend`.
