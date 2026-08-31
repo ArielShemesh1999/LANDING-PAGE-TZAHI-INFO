@@ -2,15 +2,15 @@
 
 **A single-page Hebrew/RTL site for a house-painting contractor in Israel, built for one job: turn a visitor into a lead in the owner's inbox.**
 
-Live: **https://landing-page-tzahi.vercel.app** — source is private; this is the public write-up.
+**Live:** [landing-page-tzahi.vercel.app](https://landing-page-tzahi.vercel.app) — this is the public write-up of a private client project.
 
 <p align="center">
-  <img src="assets/preview.webp" alt="LANDING-PAGE-TZAHI-INFO — the live site" width="100%">
+  <img src="assets/preview.webp" alt="Hero of the live site — headline, sub-headline, tagline and the green quote CTA" width="100%">
 </p>
 
 ## Signing the lead pipeline from browser to inbox
 
-A submit runs `browser → POST /api/lead` (Vercel, Node 20) `→ Cloudflare Worker → D1 → Resend`.
+A submit runs `browser → POST /api/lead` (Vercel, Node ≥ 20) `→ Cloudflare Worker → D1 → Resend`.
 
 The Worker is publicly reachable at `*.workers.dev`, so it cannot trust its caller. Every insert carries a shared `x-worker-secret`, an `x-hmac-timestamp` and an `x-hmac-signature` — HMAC-SHA256 over `${timestamp}.${rawBody}`. The Worker recomputes the MAC over the raw request **text**, not a re-serialized object (re-serializing changes the bytes and silently breaks the MAC), rejects timestamps older than 5 minutes to kill replays, and compares the shared secret with a timing-safe equality check.
 
@@ -30,6 +30,18 @@ A three-question estimator prices 3–6 rooms in the browser from a lookup table
 
 CSP pins `default-src 'self'` with `object-src`, `frame-ancestors` and `base-uri` at `'none'`, plus a host allowlist per directive for Tag Manager and Ads; `'unsafe-inline'` stays on `script-src` for the GTM snippet, a tag-container cost. With it: HSTS (2 years, `preload`), `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a `Permissions-Policy` denying camera, mic, geolocation, payment and USB — on every route, not just `/api`.
 
+## Screenshots
+
+<p align="center">
+  <img src="assets/quiz-estimator.webp" alt="Three-question instant-estimate quiz (rooms, wall condition, occupancy) above the 3–6 room pricing table" width="100%">
+</p>
+<p align="center">
+  <img src="assets/contact-form.webp" alt="Contact form — name, phone, city, rooms, furnished — the entry point of the lead pipeline, above the six benefit cards" width="100%">
+</p>
+<p align="center">
+  <img src="assets/mobile-home.webp" alt="Mobile hero at 390px — two-line headline, sub-headline, tagline and quote CTA" width="45%">
+</p>
+
 ## How it was verified
 
 - 2026-05-25 bring-up: 6+ smoke-test leads delivered by email **and** persisted in D1 with `email_status='email_sent'`.
@@ -38,4 +50,6 @@ CSP pins `default-src 'self'` with `object-src`, `frame-ancestors` and `base-uri
 
 ## Stack
 
-`HTML` `CSS` `vanilla JS`, no framework or build step · `Vercel` Node 20 function · `Cloudflare Workers` + `D1` · `Resend` · `Google Tag Manager` (`GTM-5SSBC2DM`), with a `lead_submit` dataLayer push and a `/thanks.html` redirect so the conversion is countable.
+`HTML` `CSS` `vanilla JS`, no framework or build step · `Vercel` Node function · `Cloudflare Workers` + `D1` · `Resend` · `Google Tag Manager` (`GTM-5SSBC2DM`), with a `lead_submit` dataLayer push and a `/thanks.html` redirect so the conversion is countable.
+
+Source is private. Built by [@shear559](https://github.com/shear559).
