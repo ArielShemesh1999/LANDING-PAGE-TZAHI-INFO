@@ -12,7 +12,7 @@
 
 A submit runs `browser → POST /api/lead` (Vercel, Node ≥ 20) `→ Cloudflare Worker → D1 → Resend`.
 
-The Worker is publicly reachable at `*.workers.dev`, so it cannot trust its caller. Every insert carries a shared `x-worker-secret`, an `x-hmac-timestamp` and an `x-hmac-signature` — HMAC-SHA256 over `${timestamp}.${rawBody}`. The Worker recomputes the MAC over the raw request **text**, not a re-serialized object (re-serializing changes the bytes and silently breaks the MAC), rejects timestamps older than 5 minutes to kill replays, and compares the shared secret with a timing-safe equality check.
+The Worker is publicly reachable at `*.workers.dev`, so it cannot trust its caller. Every insert carries a shared `x-worker-secret`, an `x-hmac-timestamp` and an `x-hmac-signature` — HMAC-SHA256 over `${timestamp}.${rawBody}`. The Worker recomputes the MAC over the raw request **text**, not a re-serialized object (re-serializing changes the bytes and silently breaks the MAC), rejects timestamps outside a five-minute window to limit how long a signed request remains valid, and compares the shared secret with a timing-safe equality check.
 
 Email is never allowed to lose a lead. The Worker writes the row as `email_status='pending'` and returns a `lead_id` **before** Resend is called; a second `POST /status` flips it to `email_sent` or `email_failed`. If Resend fails the lead is already in D1, and `WHERE email_status != 'email_sent'` lists what was missed. No admin dashboard — the owner queries D1 directly.
 
